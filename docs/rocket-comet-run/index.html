@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rocket Comet Run</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="wrap">
+    <header>
+      <h1>Rocket Comet Run</h1>
+      <div class="hud">
+        <div><span class="k">Score</span> <span id="score">0</span></div>
+        <div><span class="k">Best</span> <span id="best">0</span></div>
+        <div><span class="k">Health</span> <span id="health">3</span></div>
+      </div>
+    </header>
+
+    <canvas id="game" width="960" height="540" aria-label="Game canvas"></canvas>
+
+    <footer>
+      <div class="help">
+        <div><b>Move</b>: WASD / Arrow keys</div>
+        <div><b>Boost</b>: Shift (uses fuel, recharges)</div>
+        <div><b>Pause</b>: P</div>
+        <div><b>Restart</b>: R</div>
+        <div><b>Mute</b>: M</div>
+      </div>
+      <div id="msg" class="msg" role="status" aria-live="polite"></div>
+    </footer>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>cancel subscription — mootvey.dev</title>
+  <meta name="description" content="A hyperbolic cancellation experience." />
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    .app{max-width: 760px}
+    .panel{
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-top: 12px;
+    }
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .btn{
+      appearance:none;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor:pointer;
+      font-weight: 650;
+    }
+    .btn:hover{border-color: rgba(233,237,242,.28)}
+    .btn.primary{background: rgba(233,237,242,.08)}
+    .btn.danger{border-color: rgba(255,255,255,.14); background: rgba(255,120,140,.10)}
+    .hint{color: var(--muted); font-size: 13px; line-height: 1.45}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+
+    .bar{
+      height: 8px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      overflow:hidden;
+      margin: 12px 0 0;
+    }
+    .bar > div{height:100%; width: 0%; background: rgba(233,237,242,.22)}
+
+    input[type="text"], input[type="password"]{
+      width: min(540px, 100%);
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color: var(--text);
+      outline: none;
+    }
+
+    .tiny-link{
+      font-size: 12px;
+      color: rgba(168,176,187,.95);
+      text-decoration: underline;
+      cursor: pointer;
+      user-select:none;
+    }
+
+    .codebox{
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.22);
+    }
+
+    .receipt{line-height:1.5}
+  </style>
+</head>
+<body>
+  <div class="wrap app">
+    <header>
+      <h1>mootvey.dev</h1>
+      <div class="sub">cancel subscription</div>
+    </header>
+
+    <section>
+      <h2>Cancellation portal</h2>
+      <div class="panel">
+        <div class="row" style="justify-content:space-between">
+          <div>
+            <div style="font-weight:750">Subscription: <span class="mono">Premium Air (Plus)</span></div>
+            <div class="hint">Billing: $19.99 / month • Includes ad-supported oxygen</div>
+          </div>
+          <div class="mono" style="color:var(--muted)">REF: AIR-PLUS-001</div>
+        </div>
+        <div class="bar" aria-label="progress"><div id="bar"></div></div>
+      </div>
+
+      <div class="panel" id="stage"></div>
+
+      <footer>
+        <a href="../">Back to hub</a>
+      </footer>
+    </section>
+  </div>
+
+  <script>
+    const stageEl = document.getElementById('stage');
+    const barEl = document.getElementById('bar');
+
+    const steps = [
+      { key: 'confirm' },
+      { key: 'password' },
+      { key: 'wordle' },
+      { key: 'longcode' },
+      { key: 'survey' },
+      { key: 'hold' },
+      { key: 'dodge' },
+      { key: 'final' },
+      { key: 'receipt' },
+    ];
+
+    let i = 0;
+
+    function setProgress() {
+      const pct = Math.round((i) / (steps.length - 1) * 100);
+      barEl.style.width = pct + '%';
+    }
+
+    function html(strings, ...values) {
+      return strings.reduce((acc, s, idx) => acc + s + (values[idx] ?? ''), '');
+    }
+
+    function next() {
+      i = Math.min(i + 1, steps.length - 1);
+      render();
+    }
+
+    function render() {
+      setProgress();
+      const step = steps[i].key;
+      stageEl.innerHTML = '';
+
+      if (step === 'confirm') {
+        stageEl.innerHTML = html`
+          <div style="font-weight:750; margin-bottom:6px">Step 1: confirm your intent</div>
+          <div class="hint">We take cancellations seriously. Mostly we take them personally.</div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn" id="no1">No</button>
+            <button class="btn" id="no2">No (with regret)</button>
+            <span class="tiny-link" id="yes">Yes, cancel</span>
+          </div>
+        `;
+        document.getElementById('no1').onclick = () => alert('Great choice.');
+        document.getElementById('no2').onclick = () => alert('We accept your regret.');
+        document.getElementById('yes').onclick = () => next();
+        return;
+      }
+
+      if (step === 'password') {
+        stageEl.innerHTML = html`
+          <div style="font-weight:750; margin-bottom:6px">Step 2: re-enter password</div>
+          <div class="hint">Password hint: it’s your password.</div>
+          <div class="row" style="margin-top:12px">
+            <input id="pw" type="password" placeholder="password" />
+            <button class="btn primary" id="go">Continue</button>
+          </div>
+          <div class="hint" id="m" style="margin-top:10px"></div>
+        `;
+        document.getElementById('go').onclick = () => {
+          const v = (document.getElementById('pw').value || '');
+          if (v.length < 3) {
+            document.getElementById('m').textContent = 'Password must be at least 3 feelings long.';
+            return;
+          }
+          next();
+        };
+        return;
+      }
+
+      if (step === 'wordle') {
+        stageEl.innerHTML = html`
+          <div style="font-weight:750; margin-bottom:6px">Step 3: wordle verification</div>
+          <div class="hint">Enter today’s Wordle answer to prove you’re currently alive in society.</div>
+          <div class="row" style="margin-top:12px">
+            <input id="w" type="text" maxlength="5" placeholder="5 letters" class="mono" />
+            <button class="btn primary" id="go">Validate</button>
+          </div>
+          <div class="hint" id="m" style="margin-top:10px"></div>
+        `;
+        document.getElementById('go').onclick = () => {
+          const v = (document.getElementById('w').value || '').trim();
+          if (!/^[a-zA-Z]{5}$/.test(v)) {
+            document.getElementById('m').textContent = 'Invalid. Please enter exactly five letters and a sense of doom.';
+            return;
+          }
+          document.getElementById('m').textContent = '✅ Verified (we did not check anything).';
+          setTimeout(next, 450);
+        };
+        return;
+      }
+
+      if (step === 'longcode') {
+        // generate a long code, forbid paste
+        const code = (() => {
+          const bytes = new Uint8Array(18);
+          crypto.getRandomValues(bytes);
+          const hex = Array.from(bytes).map(b => b.toString(16).padStart(2,'0')).join('');
+          return `${hex.slice(0,6)}-${hex.slice(6,12)}-${hex.slice(12,18)}-${hex.slice(18,24)}-${hex.slice(24,30)}-${hex.slice(30,36)}`.toUpperCase();
+        })();
+
+        stageEl.innerHTML = html`
+          <div style="font-weight:750; margin-bottom:6px">Step 4: enter the anti-customer code</div>
+          <div class="hint">For security, you may <strong>not paste</strong>. Please type this code manually like it’s 2009.</div>
+          <div class="codebox mono" aria-label="code to type" style="margin-top:12px">${code}</div>
+          <div class="row" style="margin-top:12px">
+            <input id="c" type="text" placeholder="type the code" class="mono" autocapitalize="characters" />
+            <button class="btn primary" id="go">Verify</button>
+          </div>
+          <div class="hint" id="m" style="margin-top:10px"></div>
+        `;
+
+        const input = document.getElementById('c');
+        input.addEventListener('paste', (e) => {
+          e.preventDefault();
+          document.getElementById('m').textContent = '❌ Paste blocked. Please suffer manually.';
+        });
+
+        document.getElementById('go').onclick = () => {
+          const v = (input.value || '').trim().toUpperCase();
+          if (v !== code) {
+            document.getElementById('m').textContent = '❌ Incorrect code. Are you… a valued customer?';
+            return;
+          }
+          document.getElementById('m').textContent = '✅ Correct. Thank you for your labor.';
+          setTimeout(next, 450);
+        };
+        return;
+      }
+
+      if (step === 'survey') {
+        stageEl.innerHTML = html`
+          <div style="font-weight:750; margin-bottom:6px">Step 5: exit survey (mandatory)</div>
+          <div class="hint">Why are you leaving?</div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn" data-a="price">Too expensive</button>
+            <button class="btn" data-a="quality">Not enough oxygen</button>
+            <button class="btn" data-a="ethics">Feels unethical</button>
+            <button class="btn" data-a="vibes">Bad vibes</button>
+          </div>
+          <div class="hint" id="m" style="margin-top:10px"></div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn primary" id="go" disabled>Continue</button>
+          </div>
+        `;
+        const m = document.getElementById('m');
+        const go = document.getElementById('go');
+        stageEl.querySelectorAll('button[data-a]').forEach(b => {
+          b.onclick = () => {
+            m.textContent = `We appreciate your feedback. We will ignore it with great care.`;
+            go.disabled = false;
+          };
+        });
+        go.onclick = next;
+        return;
+      }
+
+      if (step === 'hold') {
+        stageEl.innerHTML = html`
+          <div style="font-weight:750; margin-bottom:6px">Step 6: contact retention specialist</div>
+          <div class="hint">Please hold while we locate a specialist trained in saying “are you sure?”</div>
+          <div class="panel" style="margin-top:12px">
+            <div class="mono" id="t">♪ ♫ hold music intensifies</div>
+          </div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn primary" id="go" disabled>Continue</button>
+          </div>
+        `;
+        const t = document.getElementById('t');
+        const go = document.getElementById('go');
+        let s = 0;
+        const lines = [
+          '♪ ♫ hold music intensifies',
+          '…agent is typing…',
+          'agent: hi valued customer',
+          'agent: have you considered not cancelling',
+          'agent: i can offer you 3 extra months of air (ad-supported)',
+          'agent: okay fine. continuing…'
+        ];
+        const timer = setInterval(() => {
+          s++;
+          t.textContent = lines[Math.min(s, lines.length - 1)];
+          if (s >= lines.length - 1) {
+            clearInterval(timer);
+            go.disabled = false;
+          }
+        }, 700);
+        go.onclick = next;
+        return;
+      }
+
+      if (step === 'dodge') {
+        stageEl.innerHTML = html`
+          <div style="font-weight:750; margin-bottom:6px">Step 7: locate the cancel button</div>
+          <div class="hint">Click the moving cancel button. (We’re sorry.)</div>
+          <div class="panel" style="margin-top:12px; height: 160px; position: relative; overflow:hidden">
+            <button class="btn danger" id="run" type="button" style="position:absolute; left: 12px; top: 12px">Cancel</button>
+          </div>
+          <div class="hint" id="m" style="margin-top:10px"></div>
+        `;
+
+        const run = document.getElementById('run');
+        const box = run.parentElement;
+        const m = document.getElementById('m');
+
+        function move() {
+          const pad = 10;
+          const maxX = box.clientWidth - run.offsetWidth - pad;
+          const maxY = box.clientHeight - run.offsetHeight - pad;
+          const x = pad + Math.floor(Math.random() * Math.max(1, maxX));
+          const y = pad + Math.floor(Math.random() * Math.max(1, maxY));
+          run.style.left = x + 'px';
+          run.style.top = y + 'px';
+        }
+
+        let moves = 0;
+        const timer = setInterval(() => { moves++; move(); }, 420);
+        run.addEventListener('mouseenter', () => move());
+        run.onclick = () => {
+          clearInterval(timer);
+          m.textContent = '✅ Hit confirmed. You are dangerously persistent.';
+          setTimeout(next, 450);
+        };
+        move();
+        return;
+      }
+
+      if (step === 'final') {
+        stageEl.innerHTML = html`
+          <div style="font-weight:750; margin-bottom:6px">Step 8: final confirmation</div>
+          <div class="hint">Check the box. There is no undo. (There is also no subscription. But still.)</div>
+          <div class="row" style="margin-top:12px">
+            <label class="hint"><input id="cb" type="checkbox" /> I understand cancelling may reduce my joy by 17%</label>
+          </div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn primary" id="go" disabled>Cancel subscription</button>
+          </div>
+        `;
+        const cb = document.getElementById('cb');
+        const go = document.getElementById('go');
+        cb.onchange = () => (go.disabled = !cb.checked);
+        go.onclick = next;
+        return;
+      }
+
+      if (step === 'receipt') {
+        const id = (() => {
+          const bytes = new Uint8Array(8);
+          crypto.getRandomValues(bytes);
+          return Array.from(bytes).map(b => b.toString(16).padStart(2,'0')).join('').toUpperCase();
+        })();
+
+        stageEl.innerHTML = html`
+          <div style="font-weight:750; margin-bottom:6px">✅ Cancelled</div>
+          <div class="hint">You did it. You escaped Premium Air (Plus).</div>
+
+          <div class="panel receipt" style="margin-top:12px">
+            <div><strong>Cancellation receipt</strong></div>
+            <div class="mono">ID: CNCL-${id}</div>
+            <div class="mono">Item: Premium Air (Plus)</div>
+            <div class="mono">Refund: $0.00 (oxygen is non-refundable)</div>
+            <div class="mono">Status: Cancelled</div>
+          </div>
+
+          <div class="row" style="margin-top:12px">
+            <button class="btn" id="again">Cancel something else</button>
+            <button class="btn primary" id="print">Print receipt</button>
+          </div>
+        `;
+        document.getElementById('again').onclick = () => { i = 0; render(); };
+        document.getElementById('print').onclick = () => window.print();
+        return;
+      }
+    }
+
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+/* TEAM */
+Maintainer: mootvey
+Assistant: mootbot
+
+/* SITE */
+Last update: 2026-02-04
+Purpose: A hub for tiny weird websites (games, generators, harmless pranks).
+Tech: static HTML/CSS/JS; designed to run locally.

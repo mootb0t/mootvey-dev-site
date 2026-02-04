@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>mootvey.dev</title>
+  <meta name="description" content="A hub for small webapps." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>mootvey.dev</h1>
+      <div class="sub">the mootvey.dev collection</div>
+    </header>
+
+    <section aria-label="Webapps">
+      <h2>Webapps</h2>
+      <div class="grid">
+        <a class="card" href="./cancelsubscription/">
+          <div class="card-top">
+            <div class="icon" aria-hidden="true">💰</div>
+            <div>
+              <div class="card-title">Cancel Subscription</div>
+              <p class="card-desc">a hyperbolic cancellation experience</p>
+            </div>
+          </div>
+          <div class="card-path">/cancelsubscription/</div>
+        </a>
+
+        <a class="card" href="./bot-captcha/">
+          <div class="card-top">
+            <div class="icon" aria-hidden="true">🤖</div>
+            <div>
+              <div class="card-title">Reverse CAPTCHA</div>
+              <p class="card-desc">only bots allowed (humans politely denied)</p>
+            </div>
+          </div>
+          <div class="card-path">/bot-captcha/</div>
+        </a>
+
+        <a class="card" href="./rocket-comet-run/">
+          <div class="card-top">
+            <div class="icon" aria-hidden="true">🚀</div>
+            <div>
+              <div class="card-title">Rocket Comet Run</div>
+              <p class="card-desc">an awesome game about space</p>
+            </div>
+          </div>
+          <div class="card-path">/rocket-comet-run/</div>
+        </a>
+      </div>
+    </section>
+
+    <footer>
+      Run locally: <code>python3 -m http.server 8000</code> (from <code>mootvey.dev</code>) then open <code>http://localhost:8000</code>.
+    </footer>
+  </div>
+</body>
+</html>

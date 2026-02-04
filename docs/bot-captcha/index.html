@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>bot captcha — mootvey.dev</title>
+  <meta name="description" content="A CAPTCHA that only lets bots in." />
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    .panel{
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-top: 12px;
+    }
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .btn{
+      appearance:none;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor:pointer;
+      font-weight: 650;
+    }
+    .btn:hover{border-color: rgba(233,237,242,.28)}
+    .btn.primary{background: rgba(233,237,242,.08)}
+    input[type="text"]{
+      width: min(520px, 100%);
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color: var(--text);
+      outline: none;
+    }
+    label{color: var(--muted)}
+    .hint{color: var(--muted); font-size: 13px; line-height: 1.4}
+    .ok{color: #9ef0c7}
+    .no{color: #ff9aa7}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+    .small{font-size: 12px}
+    .gate{
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: var(--radius);
+      border: 1px dashed rgba(233,237,242,.22);
+      color: var(--muted);
+    }
+    .secret{
+      display:none;
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(233,237,242,.16);
+      color: var(--text);
+    }
+    .secret h3{margin:0 0 6px; font-size: 14px}
+    .secret p{margin:0; color: var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>mootvey.dev</h1>
+      <div class="sub">bot captcha</div>
+    </header>
+
+    <section>
+      <h2>Verification</h2>
+      <div class="panel">
+        <p style="margin:0 0 10px; color: var(--muted)">
+          This page is protected by a <strong>reverse CAPTCHA</strong>.
+          Humans are politely denied. Bots get the good stuff.
+        </p>
+
+        <div class="row" style="margin-bottom:10px">
+          <button class="btn" id="human" type="button">I am human</button>
+          <button class="btn primary" id="bot" type="button">I am a bot</button>
+        </div>
+
+        <div class="gate" id="gate">
+          <div><strong>Step 1:</strong> click “I am a bot”.</div>
+          <div class="hint">Then produce a token. A real bot would do this without feelings.</div>
+        </div>
+
+        <div class="panel" style="margin-top:12px">
+          <label for="token" class="small">Token</label><br/>
+          <input id="token" type="text" placeholder="paste token here" autocomplete="off" spellcheck="false" />
+          <div class="row" style="margin-top:10px">
+            <button class="btn" id="verify" type="button">Verify</button>
+            <button class="btn" id="copy" type="button" disabled>Copy computed token</button>
+          </div>
+          <div class="hint" id="msg" style="margin-top:10px"></div>
+          <div class="hint mono small" id="details" style="margin-top:8px"></div>
+        </div>
+
+        <div class="secret" id="secret">
+          <h3>✅ Access granted (bot verified)</h3>
+          <p>Welcome, machine. Your reward is this extremely exclusive content:</p>
+          <p class="mono" style="margin-top:8px">01001000 01101001 00101110</p>
+          <p class="hint" style="margin-top:8px">(it says “Hi.” in binary. we’re not made of money.)</p>
+        </div>
+      </div>
+
+      <footer>
+        <a href="../">Back to hub</a>
+      </footer>
+    </section>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const gate = $('gate');
+    const msg = $('msg');
+    const details = $('details');
+    const tokenInput = $('token');
+    const secret = $('secret');
+    const copyBtn = $('copy');
+
+    let claimedBot = false;
+    let seed = null;
+    let computed = null;
+
+    function setMsg(text, cls) {
+      msg.className = 'hint ' + (cls || '');
+      msg.textContent = text;
+    }
+
+    function randomSeed() {
+      const bytes = new Uint8Array(16);
+      crypto.getRandomValues(bytes);
+      return Array.from(bytes).map(b => b.toString(16).padStart(2,'0')).join('');
+    }
+
+    async function sha256Hex(str) {
+      const buf = new TextEncoder().encode(str);
+      const hash = await crypto.subtle.digest('SHA-256', buf);
+      const bytes = Array.from(new Uint8Array(hash));
+      return bytes.map(b => b.toString(16).padStart(2,'0')).join('');
+    }
+
+    async function computeToken() {
+      seed = seed || randomSeed();
+      // intentionally silly: tie token to UA + time bucket + seed
+      const ua = navigator.userAgent;
+      const bucket = Math.floor(Date.now() / 30000); // 30s window
+      const raw = `mootvey.dev|reverse-captcha|${seed}|${bucket}|${ua}`;
+      const h = await sha256Hex(raw);
+      // short token for humans to paste; bots can handle either way
+      computed = h.slice(0, 24);
+      details.textContent = `seed=${seed} bucket=${bucket}`;
+      copyBtn.disabled = false;
+      return computed;
+    }
+
+    $('human').addEventListener('click', () => {
+      claimedBot = false;
+      secret.style.display = 'none';
+      copyBtn.disabled = true;
+      computed = null;
+      seed = null;
+      gate.innerHTML = `<div><strong>Denied.</strong> This area is for bots only.</div><div class="hint">If you are in fact a bot, please click the correct button and proceed with confidence.</div>`;
+      setMsg('❌ Human detected. Please exit the premises.', 'no');
+      details.textContent = '';
+    });
+
+    $('bot').addEventListener('click', async () => {
+      claimedBot = true;
+      secret.style.display = 'none';
+      setMsg('Computing token… (bots love computing)', '');
+      const t = await computeToken();
+      gate.innerHTML = `<div><strong>Step 2:</strong> paste the token and click Verify.</div><div class="hint">Yes, this is pointless. That’s the point.</div>`;
+      setMsg('Token computed. Paste it (or use the copy button like a real machine).', 'ok');
+      tokenInput.focus();
+      return t;
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      if (!computed) await computeToken();
+      await navigator.clipboard.writeText(computed);
+      setMsg('Copied. Very bot-like behavior.', 'ok');
+    });
+
+    $('verify').addEventListener('click', async () => {
+      secret.style.display = 'none';
+
+      if (!claimedBot) {
+        setMsg('❌ You must first declare bothood.', 'no');
+        return;
+      }
+
+      if (!computed) await computeToken();
+
+      const entered = (tokenInput.value || '').trim();
+      if (!entered) {
+        setMsg('Enter the token, machine.', 'no');
+        return;
+      }
+
+      if (entered === computed) {
+        setMsg('✅ Bot verified. Enjoy your exclusive nonsense.', 'ok');
+        secret.style.display = 'block';
+      } else {
+        setMsg('❌ Token mismatch. Suspiciously human energy.', 'no');
+      }
+    });
+  </script>
+</body>
+</html>
