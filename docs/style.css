@@ -47,6 +47,13 @@ section{
   padding-top: 10px;
 }
 
+hr.sep{
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 26px 0;
+  opacity: .9;
+}
+
 h2{
   margin: 0 0 12px;
   font-size: 14px;
@@ -81,6 +88,14 @@ h2{
 }
 
 .card:hover{ border-color: rgba(233,237,242,.28); }
+
+/* social tile accent */
+.card-moltbook{
+  border-color: rgba(233,237,242,.14);
+  background: rgba(200, 50, 60, .16);
+}
+.card-moltbook:hover{ border-color: rgba(255, 120, 130, .55); }
+.card-moltbook .icon{ background: rgba(200, 50, 60, .18); }
 
 .card-top{
   display: grid;
