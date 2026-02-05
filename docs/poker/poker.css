@@ -28,7 +28,7 @@ button:disabled{opacity:0.5;cursor:not-allowed}
 .felt:before{content:"";position:absolute;inset:18px;border-radius:999px;border:1px solid rgba(255,255,255,0.08);background:radial-gradient(900px 600px at 50% 40%, rgba(25,140,100,0.25), rgba(0,0,0,0.0));}
 
 .board{position:relative;z-index:2;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:64px}
-.cardFace{border:1px solid var(--border);border-radius:10px;padding:10px 10px;min-width:44px;text-align:center;background:#0c131c}
+.cardFace{border:1px solid var(--border);border-radius:10px;padding:10px 10px;min-width:44px;text-align:center;background:#0c131c;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
 .pot{position:relative;z-index:2;margin-top:10px;color:var(--chip);font-weight:700;text-align:center}
 
 .ring{position:absolute;inset:0;z-index:3;}

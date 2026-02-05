@@ -68,18 +68,25 @@ function send(type, payload = {}) {
   ws.send(JSON.stringify({ type, ...payload }));
 }
 
+function renderCard(card) {
+  if (!card) return '';
+  const r = card[0];
+  const s = card[1];
+  const suit = s === 's' ? '♠' : s === 'h' ? '♥' : s === 'd' ? '♦' : s === 'c' ? '♣' : s;
+  return `${r}${suit}`;
+}
+
 function seatPositions() {
-  // 9 seats around an oval (percent positions)
+  // 8 seats around an oval (percent positions)
   return [
-    { seat: 1, x: 50, y: 10 },
-    { seat: 2, x: 75, y: 18 },
-    { seat: 3, x: 90, y: 40 },
-    { seat: 4, x: 75, y: 78 },
-    { seat: 5, x: 50, y: 90 },
-    { seat: 6, x: 25, y: 78 },
-    { seat: 7, x: 10, y: 40 },
-    { seat: 8, x: 25, y: 18 },
-    { seat: 9, x: 50, y: 50 } // center-ish spare seat
+    { seat: 1, x: 50, y: 8 },
+    { seat: 2, x: 76, y: 16 },
+    { seat: 3, x: 92, y: 40 },
+    { seat: 4, x: 76, y: 82 },
+    { seat: 5, x: 50, y: 92 },
+    { seat: 6, x: 24, y: 82 },
+    { seat: 7, x: 8, y: 40 },
+    { seat: 8, x: 24, y: 16 }
   ];
 }
 
@@ -123,7 +130,7 @@ function render() {
   }
 
   if (snapshot?.game) {
-    $('board').innerHTML = snapshot.game.board.map(c => `<div class="cardFace">${c}</div>`).join('') || '<div class="muted">(no board yet)</div>';
+    $('board').innerHTML = snapshot.game.board.map(c => `<div class="cardFace">${renderCard(c)}</div>`).join('') || '<div class="muted">(no board yet)</div>';
     $('pot').textContent = `pot: ${snapshot.game.pot}`;
   }
 
@@ -143,7 +150,7 @@ function render() {
     const p = u ? playersByName.get(u) : null;
     const isYou = u === me;
 
-    const hole = p?.hole ? p.hole.join(' ') : (p && p.hole === null ? '?? ??' : '');
+    const hole = p?.hole ? p.hole.map(renderCard).join(' ') : (p && p.hole === null ? '?? ??' : '');
     const flags = [];
     if (snapshot?.game?.toAct === u) flags.push('TO ACT');
     if (snapshot?.game?.dealerSeat === seat) flags.push('DEALER');
