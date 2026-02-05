@@ -55,17 +55,33 @@
           <h2>table</h2>
           <div class="row">
             <button id="startHandBtn">start hand</button>
+            <button id="startSessionBtn">start session</button>
+            <button id="endSessionBtn">end session / settle</button>
             <span class="muted" id="hostNote"></span>
           </div>
         </div>
 
-        <div class="board" id="board"></div>
-        <div class="pot" id="pot"></div>
-
-        <div class="seats" id="seats"></div>
+        <div class="tableVisual" id="tableVisual">
+          <div class="felt">
+            <div class="board" id="board"></div>
+            <div class="pot" id="pot"></div>
+          </div>
+          <div class="ring" id="seatRing"></div>
+        </div>
 
         <div class="actions" id="actions"></div>
         <div class="err" id="tableErr"></div>
+      </section>
+
+      <section class="card modal" id="settleModal" hidden>
+        <div class="tableTop">
+          <h2>settlement</h2>
+          <div class="row">
+            <button id="printSettleBtn">print</button>
+            <button id="closeSettleBtn">close</button>
+          </div>
+        </div>
+        <div id="settleBody"></div>
       </section>
     </section>
   </main>

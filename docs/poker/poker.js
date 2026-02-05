@@ -6,6 +6,7 @@ let chips = null;
 let roomId = null;
 let ws = null;
 let snapshot = null;
+let settlement = null;
 
 const $ = (id) => document.getElementById(id);
 
@@ -47,6 +48,9 @@ function connectWs() {
     if (msg.type === 'room_snapshot') {
       snapshot = msg.payload;
       render();
+    } else if (msg.type === 'settlement') {
+      settlement = msg.payload;
+      openSettlement();
     } else if (msg.type === 'error') {
       showError($('tableErr'), msg.payload?.error || 'error');
     }
@@ -62,6 +66,48 @@ function connectWs() {
 function send(type, payload = {}) {
   if (!ws || ws.readyState !== 1) return;
   ws.send(JSON.stringify({ type, ...payload }));
+}
+
+function seatPositions() {
+  // 9 seats around an oval (percent positions)
+  return [
+    { seat: 1, x: 50, y: 10 },
+    { seat: 2, x: 75, y: 18 },
+    { seat: 3, x: 90, y: 40 },
+    { seat: 4, x: 75, y: 78 },
+    { seat: 5, x: 50, y: 90 },
+    { seat: 6, x: 25, y: 78 },
+    { seat: 7, x: 10, y: 40 },
+    { seat: 8, x: 25, y: 18 },
+    { seat: 9, x: 50, y: 50 } // center-ish spare seat
+  ];
+}
+
+function openSettlement() {
+  if (!settlement) return;
+
+  const transfers = settlement.transfers || [];
+  const lines = transfers.length
+    ? `<ol>${transfers.map(t => `<li><strong>${t.from}</strong> owes <strong>${t.to}</strong> <span class="chips">${t.amount}</span></li>`).join('')}</ol>`
+    : `<div class="muted">No one owes anyone anything.</div>`;
+
+  const started = settlement.startedAt ? new Date(settlement.startedAt).toLocaleString() : '—';
+  const ended = settlement.endedAt ? new Date(settlement.endedAt).toLocaleString() : '—';
+
+  $('settleBody').innerHTML = `
+    <div class="muted">room: <code>${settlement.roomId}</code></div>
+    <div class="muted">started: ${started}</div>
+    <div class="muted">ended: ${ended}</div>
+    <hr style="border:0;border-top:1px solid var(--border);margin:14px 0" />
+    <h3 style="margin:0 0 8px 0">who owes who</h3>
+    ${lines}
+  `;
+
+  $('settleModal').hidden = false;
+}
+
+function closeSettlement() {
+  $('settleModal').hidden = true;
 }
 
 function render() {
@@ -87,30 +133,43 @@ function render() {
   const host = snapshot?.host;
   $('hostNote').textContent = host ? `(host: ${host})` : '';
 
-  let html = '';
-  for (let s = 1; s <= 9; s++) {
-    const u = seatMap.get(s);
+  const isHost = host && host === me;
+  $('startSessionBtn').disabled = !isHost;
+  $('endSessionBtn').disabled = !isHost;
+
+  const pos = seatPositions();
+  const ring = pos.map(({ seat, x, y }) => {
+    const u = seatMap.get(seat);
     const p = u ? playersByName.get(u) : null;
     const isYou = u === me;
 
     const hole = p?.hole ? p.hole.join(' ') : (p && p.hole === null ? '?? ??' : '');
     const flags = [];
     if (snapshot?.game?.toAct === u) flags.push('TO ACT');
-    if (snapshot?.game?.dealerSeat === s) flags.push('DEALER');
+    if (snapshot?.game?.dealerSeat === seat) flags.push('DEALER');
     if (p?.folded) flags.push('FOLDED');
     if (p?.allIn) flags.push('ALL-IN');
 
-    html += `
-      <div class="seat ${isYou ? 'you' : ''}">
-        <div class="seatTop">
-          <div>${u ? `<strong>${u}</strong>` : `<span class="muted">seat ${s}</span>`}</div>
-          <div>${u ? `<span class="badge">${s}</span>` : `<button data-sit="${s}">sit</button>`}</div>
+    const action = u
+      ? `<span class="badge">${seat}</span>`
+      : `<button data-sit="${seat}">sit</button>`;
+
+    const body = u
+      ? `<div class="small">stack: <span class=chips>${p?.stack ?? '—'}</span>\nbet: ${p?.bet ?? 0}\ncards: ${hole}\n${flags.length ? flags.join(' • ') : ''}</div>`
+      : `<div class="small muted">empty seat</div>`;
+
+    return `
+      <div class="seatBubble ${isYou ? 'you' : ''}" style="left:${x}%;top:${y}%;">
+        <div class="seatName">
+          <div>${u ? `<strong>${u}</strong>` : `<span class="muted">seat ${seat}</span>`}</div>
+          <div>${action}</div>
         </div>
-        <div class="small">${u ? `stack: <span class=chips>${p?.stack ?? '—'}</span>\n` : ''}${u ? `bet: ${p?.bet ?? 0}\n` : ''}${u ? `cards: ${hole}\n` : ''}${flags.length ? flags.join(' • ') : ''}</div>
+        ${body}
       </div>
     `;
-  }
-  $('seats').innerHTML = html;
+  }).join('');
+
+  $('seatRing').innerHTML = ring;
 
   const g = snapshot?.game;
   const you = g?.players?.find(p => p.username === me);
@@ -194,6 +253,19 @@ $('startHandBtn').addEventListener('click', () => {
   showError($('tableErr'), '');
   send('start_hand');
 });
+
+$('startSessionBtn').addEventListener('click', () => {
+  showError($('tableErr'), '');
+  send('start_session');
+});
+
+$('endSessionBtn').addEventListener('click', () => {
+  showError($('tableErr'), '');
+  send('end_session');
+});
+
+$('closeSettleBtn').addEventListener('click', () => closeSettlement());
+$('printSettleBtn').addEventListener('click', () => window.print());
 
 // bootstrap from localStorage
 (() => {

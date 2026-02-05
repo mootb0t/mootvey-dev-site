@@ -23,14 +23,29 @@ button:disabled{opacity:0.5;cursor:not-allowed}
 .err{color:var(--danger);font-size:13px;margin-top:10px;min-height:18px}
 
 .tableTop{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.board{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.tableVisual{position:relative;margin-top:14px;border:1px solid var(--border);border-radius:18px;background:rgba(0,0,0,0.15);overflow:hidden}
+.felt{position:relative;min-height:360px;padding:16px;background:radial-gradient(800px 500px at 50% 30%, rgba(46,160,120,0.35), rgba(10,20,24,0.0));}
+.felt:before{content:"";position:absolute;inset:18px;border-radius:999px;border:1px solid rgba(255,255,255,0.08);background:radial-gradient(900px 600px at 50% 40%, rgba(25,140,100,0.25), rgba(0,0,0,0.0));}
+
+.board{position:relative;z-index:2;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:64px}
 .cardFace{border:1px solid var(--border);border-radius:10px;padding:10px 10px;min-width:44px;text-align:center;background:#0c131c}
-.pot{margin-top:10px;color:var(--chip);font-weight:700}
-.seats{display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;margin-top:12px}
-.seat{border:1px solid var(--border);border-radius:12px;padding:10px;background:#0c131c}
-.seatTop{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.pot{position:relative;z-index:2;margin-top:10px;color:var(--chip);font-weight:700;text-align:center}
+
+.ring{position:absolute;inset:0;z-index:3;}
+.seatBubble{position:absolute;transform:translate(-50%,-50%);width:190px;max-width:40vw;border:1px solid var(--border);border-radius:14px;padding:10px;background:#0c131c;}
+.seatBubble.you{border-color:#2f9bb3}
+.seatName{display:flex;justify-content:space-between;gap:8px;align-items:center}
 .badge{font-size:12px;color:#001018;background:var(--accent);padding:2px 8px;border-radius:999px;font-weight:700}
-.you{border-color:#2f9bb3}
 .chips{color:var(--chip);font-weight:700}
 .small{font-size:12px;color:var(--muted);margin-top:6px;white-space:pre-line}
+
 .actions{margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+
+.modal{border-color:#33526c}
+@media print{
+  body{background:white;color:black}
+  .wrap{max-width:none}
+  .top,.grid,#tableCard,#loginCard,#lobbyCard{display:none !important}
+  #settleModal{display:block !important;border:0}
+  #settleModal .row{display:none !important}
+}
