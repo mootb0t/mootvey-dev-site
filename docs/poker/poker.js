@@ -145,6 +145,66 @@ function openSettlement() {
   $('settleModal').hidden = false;
 }
 
+function isPdfLibReady() {
+  return typeof window !== 'undefined'
+    && window.html2canvas
+    && window.jspdf
+    && window.jspdf.jsPDF;
+}
+
+async function downloadSettlementPdf() {
+  if (!settlement) return;
+  const el = $('settleModal');
+  if (!el || el.hidden) return;
+
+  if (!isPdfLibReady()) {
+    showError($('tableErr'), 'pdf libs still loading—try again in a second');
+    return;
+  }
+
+  const prevHidden = el.hidden;
+  el.hidden = false;
+
+  try {
+    const canvas = await window.html2canvas(el, {
+      backgroundColor: '#ffffff',
+      scale: Math.min(2, window.devicePixelRatio || 1),
+      useCORS: true
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+
+    const pdf = new jsPDF({ orientation: 'p', unit: 'pt', format: 'a4' });
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    const margin = 28;
+    const targetWidth = pageWidth - margin * 2;
+    const scale = targetWidth / canvas.width;
+    const targetHeight = canvas.height * scale;
+
+    let remaining = targetHeight;
+    let offsetY = 0;
+
+    while (remaining > 0) {
+      pdf.addImage(imgData, 'PNG', margin, margin - offsetY, targetWidth, targetHeight);
+      remaining -= (pageHeight - margin * 2);
+      offsetY += (pageHeight - margin * 2);
+      if (remaining > 0) pdf.addPage();
+    }
+
+    const safeRoom = String(settlement.roomId || 'room').replace(/[^a-z0-9_-]+/gi, '_');
+    const ts = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+    pdf.save(`poker-settlement-${safeRoom}-${ts}.pdf`);
+  } catch (e) {
+    showError($('tableErr'), e?.message || 'pdf_failed');
+  } finally {
+    el.hidden = prevHidden;
+  }
+}
+
 function closeSettlement() {
   $('settleModal').hidden = true;
 }
@@ -305,6 +365,7 @@ $('endSessionBtn').addEventListener('click', () => {
 
 $('closeSettleBtn').addEventListener('click', () => closeSettlement());
 $('printSettleBtn').addEventListener('click', () => window.print());
+$('downloadPdfBtn').addEventListener('click', () => downloadSettlementPdf());
 
 // bootstrap from localStorage
 (() => {
