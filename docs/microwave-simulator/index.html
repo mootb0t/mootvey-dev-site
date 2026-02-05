@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>microwave simulator — mootvey.dev</title>
+  <meta name="description" content="A tiny microwave simulator with beeps, drama, and rotating ASCII food." />
+  <link rel="stylesheet" href="../style.css" />
+  <style>
+    .panel{
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-top: 12px;
+    }
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .btn{
+      appearance:none;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor:pointer;
+      font-weight: 650;
+    }
+    .btn:hover{border-color: rgba(233,237,242,.28)}
+    .btn.primary{background: rgba(233,237,242,.08)}
+    .btn.danger{border-color: rgba(255,154,167,.35)}
+    .btn:disabled{opacity:.45; cursor:not-allowed}
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-width: 160px;
+    }
+    .label{color: var(--muted); font-size: 12px}
+    input[type="number"], select{
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.25);
+      color: var(--text);
+      outline: none;
+    }
+
+    .microwrap{display:grid; grid-template-columns: 1.1fr .9fr; gap:12px}
+    @media (max-width: 860px){ .microwrap{grid-template-columns: 1fr} }
+
+    .display{
+      border-radius: 14px;
+      border: 1px solid rgba(233,237,242,.14);
+      background: rgba(0,0,0,.35);
+      padding: 12px;
+    }
+    .lcd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      letter-spacing: .04em;
+      font-size: 28px;
+      font-weight: 750;
+      color: #c9ffd8;
+      text-shadow: 0 0 14px rgba(100,255,175,.18);
+    }
+    .subdisp{color: var(--muted); font-size: 13px; margin-top: 6px; line-height: 1.4}
+
+    .oven{
+      border-radius: 16px;
+      border: 1px solid rgba(233,237,242,.14);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.28));
+      padding: 12px;
+      min-height: 220px;
+      position: relative;
+      overflow: hidden;
+    }
+    .glass{
+      border-radius: 12px;
+      border: 1px solid rgba(233,237,242,.12);
+      background: rgba(0,0,0,.25);
+      padding: 10px;
+      height: 100%;
+    }
+    pre{
+      margin: 0;
+      white-space: pre;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12.5px;
+      line-height: 1.25;
+      color: rgba(233,237,242,.92);
+      user-select: none;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(233,237,242,.14);
+      background: rgba(255,255,255,.04);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .dot{
+      width: 8px; height: 8px;
+      border-radius: 99px;
+      background: rgba(233,237,242,.22);
+      box-shadow: 0 0 0 0 rgba(100,255,175,.0);
+    }
+    .dot.on{
+      background: rgba(100,255,175,.85);
+      box-shadow: 0 0 18px 2px rgba(100,255,175,.18);
+    }
+
+    .hint{color: var(--muted); font-size: 13px; line-height: 1.4}
+    .ok{color: #9ef0c7}
+    .no{color: #ff9aa7}
+
+    .small{font-size: 12px}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+
+    .log{
+      max-height: 160px;
+      overflow:auto;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(233,237,242,.12);
+      background: rgba(0,0,0,.22);
+    }
+    .logline{color: rgba(233,237,242,.86); font-size: 12.5px; line-height: 1.35; margin: 0 0 6px}
+    .logline:last-child{margin-bottom:0}
+
+    .kbd{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: 12px; padding: 2px 6px; border-radius: 8px; border: 1px solid rgba(233,237,242,.14); background: rgba(0,0,0,.22); color: rgba(233,237,242,.9)}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>mootvey.dev</h1>
+      <div class="sub">microwave simulator</div>
+    </header>
+
+    <section>
+      <h2>Chef’s special: disappointment</h2>
+      <p class="hint" style="margin-top:8px">
+        Set a time, choose a power level, and experience the timeless arc:
+        <span class="mono">BEEP</span> → <span class="mono">WHIRR</span> → <span class="mono">still cold in the middle</span>.
+      </p>
+
+      <div class="panel microwrap" aria-label="Microwave simulator">
+        <div>
+          <div class="display" aria-label="Microwave display">
+            <div class="row" style="justify-content:space-between">
+              <div class="lcd" id="lcd">00:30</div>
+              <div class="badge" title="Magnetron status">
+                <span class="dot" id="dot"></span>
+                <span id="stateLabel">IDLE</span>
+              </div>
+            </div>
+            <div class="subdisp" id="subdisp">Door closed. Food: <span id="foodLabel">burrito</span>. Power: <span id="powerLabel">7</span>/10.</div>
+          </div>
+
+          <div class="oven" aria-label="Oven window" style="margin-top:12px">
+            <div class="glass">
+              <pre id="ovenArt" aria-label="Food in microwave"></pre>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:12px">
+            <button class="btn primary" id="start" type="button">Start</button>
+            <button class="btn" id="pause" type="button" disabled>Pause</button>
+            <button class="btn danger" id="stop" type="button" disabled>Stop</button>
+            <button class="btn" id="door" type="button">Open door</button>
+          </div>
+          <div class="hint small" style="margin-top:8px">
+            Shortcuts: <span class="kbd">Space</span> start/pause, <span class="kbd">Esc</span> stop, <span class="kbd">D</span> door.
+          </div>
+        </div>
+
+        <div>
+          <div class="row">
+            <div class="field">
+              <div class="label">Time (seconds)</div>
+              <input id="seconds" type="number" min="1" max="600" value="30" />
+              <div class="hint small">1–600. You’re not defrosting a turkey here.</div>
+            </div>
+            <div class="field">
+              <div class="label">Power</div>
+              <input id="power" type="number" min="1" max="10" value="7" />
+              <div class="hint small">if too high will <span class="mono">rm -rf /</span></div>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:12px">
+            <div class="field" style="min-width:220px">
+              <div class="label">Food</div>
+              <select id="food">
+                <option value="burrito" selected>burrito</option>
+                <option value="pizza">leftover pizza slice</option>
+                <option value="soup">soup (in a mug)</option>
+                <option value="coffee">coffee (day 2)</option>
+                <option value="mystery">mystery tupperware</option>
+              </select>
+              <div class="hint small">All foods become lava at the edges.</div>
+            </div>
+          </div>
+
+          <div class="panel" style="margin-top:12px">
+            <div class="row" style="justify-content:space-between; align-items:flex-end">
+              <div>
+                <div style="font-weight:700">Event log</div>
+                <div class="hint small">A record of your culinary choices.</div>
+              </div>
+              <button class="btn" id="clear" type="button">Clear</button>
+            </div>
+            <div class="log" id="log" style="margin-top:10px" aria-live="polite"></div>
+          </div>
+
+          <div class="panel" style="margin-top:12px">
+            <div style="font-weight:700">Safety label</div>
+            <p class="hint" style="margin:8px 0 0">
+              Warning: this experience is too authentic so you'll think it's a real microwave, screen will be super hot too
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <a href="../">Back to hub</a>
+      </footer>
+    </section>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    const lcd = $('lcd');
+    const dot = $('dot');
+    const stateLabel = $('stateLabel');
+    const subdisp = $('subdisp');
+    const ovenArt = $('ovenArt');
+
+    const secondsInput = $('seconds');
+    const powerInput = $('power');
+    const foodSelect = $('food');
+    const foodLabel = $('foodLabel');
+    const powerLabel = $('powerLabel');
+
+    const startBtn = $('start');
+    const pauseBtn = $('pause');
+    const stopBtn = $('stop');
+    const doorBtn = $('door');
+    const clearBtn = $('clear');
+    const logEl = $('log');
+
+    let doorOpen = false;
+    let running = false;
+    let paused = false;
+    let remainingMs = 30000;
+    let tick = null;
+    let spinPhase = 0;
+
+    const ART = {
+      burrito: [
+`      .-''''-.
+    .'  _  _  '.
+   /   (o)(o)   \\
+  |     .___.    |
+  |   .'_____'.  |
+   \\  \u00B4-----\u00B4  /
+    '.         .'
+      '-.___.-'`,
+`      .-''''-.
+    .'  _  _  '.
+   /   (o)(o)   \\
+  |    (.___.)   |
+  |   .'_____'.  |
+   \\  \u00B4-----\u00B4  /
+    '.         .'
+      '-.___.-'`,
+`      .-''''-.
+    .'  _  _  '.
+   /   (o)(o)   \\
+  |     .___,    |
+  |   .'_____'.  |
+   \\  \u00B4-----\u00B4  /
+    '.         .'
+      '-.___.-'`,
+`      .-''''-.
+    .'  _  _  '.
+   /   (o)(o)   \\
+  |    (.___.)   |
+  |   .'_____'.  |
+   \\  \u00B4-----\u00B4  /
+    '.         .'
+      '-.___.-'`
+      ],
+      pizza: [
+`      _________
+     /\        \\
+    /  \  CHEESE\\
+   /____\________\\
+   \    /  o   o  /
+    \  /     o   /
+     \/_________/`,
+`      _________
+     /\        \\
+    /  \  CHEESE\\
+   /____\________\\
+   \    / o   o   /
+    \  /    o    /
+     \/_________/`,
+`      _________
+     /\        \\
+    /  \  CHEESE\\
+   /____\________\\
+   \    /  o  o   /
+    \  /   o     /
+     \/_________/`,
+`      _________
+     /\        \\
+    /  \  CHEESE\\
+   /____\________\\
+   \    / o  o    /
+    \  /     o   /
+     \/_________/`
+      ],
+      soup: [
+`      ( ( (
+       ) ) )
+    .-"""""-.
+   /  SOUP   \\
+  |  ~~~~~~  |
+   \\________/
+     |    |
+     |____|`,
+`       ( ( (
+      ) ) )
+    .-"""""-.
+   /  SOUP   \\
+  |  ~~~~~~  |
+   \\________/
+     |    |
+     |____|`,
+`      ( ( (
+       ) ) )
+    .-"""""-.
+   /  SOUP   \\
+  |  ~~~~~~  |
+   \\________/
+     |    |
+     |____|`,
+`       ( ( (
+      ) ) )
+    .-"""""-.
+   /  SOUP   \\
+  |  ~~~~~~  |
+   \\________/
+     |    |
+     |____|`
+      ],
+      coffee: [
+`      .-"""-.
+     /  JAVA  \\
+    |  ~~~~~  |
+    |         |
+     \\______/ 
+     (______)`,
+`      .-"""-.
+     /  JAVA  \\
+    |  ~~~~~  |
+    |   ~~~   |
+     \\______/ 
+     (______)`,
+`      .-"""-.
+     /  JAVA  \\
+    |  ~~~~~  |
+    |         |
+     \\______/ 
+     (______)`,
+`      .-"""-.
+     /  JAVA  \\
+    |  ~~~~~  |
+    |  ~~~    |
+     \\______/ 
+     (______)`
+      ],
+      mystery: [
+`    .------------.
+    |  TUPPERWARE |
+    |  ???  ???   |
+    |   ???   ??? |
+    '------------'
+        |____|`,
+`    .------------.
+    |  TUPPERWARE |
+    |  ??  ????   |
+    |   ????  ??  |
+    '------------'
+        |____|`,
+`    .------------.
+    |  TUPPERWARE |
+    |  ????  ??   |
+    |   ??  ????  |
+    '------------'
+        |____|`,
+`    .------------.
+    |  TUPPERWARE |
+    |  ??  ?? ??  |
+    |   ????  ??  |
+    '------------'
+        |____|`
+      ],
+    };
+
+    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+
+    function fmt(ms){
+      const s = Math.max(0, Math.ceil(ms/1000));
+      const m = Math.floor(s/60);
+      const r = s % 60;
+      return `${String(m).padStart(2,'0')}:${String(r).padStart(2,'0')}`;
+    }
+
+    function nowHHMMSS(){
+      const d = new Date();
+      return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    }
+
+    function log(line){
+      const p = document.createElement('div');
+      p.className = 'logline';
+      p.textContent = `[${nowHHMMSS()}] ${line}`;
+      logEl.prepend(p);
+    }
+
+    function setState(next){
+      stateLabel.textContent = next;
+      const on = (next === 'RUNNING');
+      dot.classList.toggle('on', on);
+    }
+
+    function refreshLabels(){
+      const power = clamp(parseInt(powerInput.value||'7',10), 1, 10);
+      powerInput.value = String(power);
+      powerLabel.textContent = String(power);
+
+      const food = foodSelect.value;
+      foodLabel.textContent = food === 'pizza' ? 'pizza' : food;
+
+      const doorText = doorOpen ? 'Door open.' : 'Door closed.';
+      const modeText = running ? (paused ? 'Paused.' : 'Cooking.') : 'Ready.';
+      subdisp.textContent = `${doorText} ${modeText} Food: ${foodLabel.textContent}. Power: ${power}/10.`;
+
+      renderArt();
+    }
+
+    function renderArt(){
+      const food = foodSelect.value;
+      const frames = ART[food] || ART.burrito;
+      const frame = frames[spinPhase % frames.length];
+      const doorMsg = doorOpen ? `\n\n  [door open: heat escapes]\n` : '';
+      const hum = running && !paused && !doorOpen ? `\n\n  (mmmmmm) (whirrr)\n` : '';
+      ovenArt.textContent = frame + hum + doorMsg;
+    }
+
+    function stopAll(reason){
+      if (tick) { clearInterval(tick); tick = null; }
+      running = false;
+      paused = false;
+      setState('IDLE');
+      pauseBtn.disabled = true;
+      stopBtn.disabled = true;
+      startBtn.disabled = false;
+      lcd.textContent = fmt(remainingMs);
+      if (reason) log(reason);
+      refreshLabels();
+    }
+
+    function beep(count=1){
+      // Simple WebAudio beep; if blocked, we still log.
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = 'square';
+        o.frequency.value = 880;
+        g.gain.value = 0.05;
+        o.connect(g);
+        g.connect(ctx.destination);
+        const t0 = ctx.currentTime;
+        for (let i=0;i<count;i++){
+          const t = t0 + i*0.14;
+          g.gain.setValueAtTime(0.05, t);
+          g.gain.setValueAtTime(0.0, t+0.08);
+        }
+        o.start(t0);
+        o.stop(t0 + count*0.14);
+        o.onended = () => ctx.close();
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    function maybeEvent(remainingRatio){
+      // Low probability events; slightly more likely at high power.
+      const power = clamp(parseInt(powerInput.value||'7',10), 1, 10);
+      const base = 0.01 + power*0.002; // 1%..3%
+      if (Math.random() > base) return;
+
+      if (doorOpen) return; // nothing interesting, door is open
+
+      const r = Math.random();
+      if (r < 0.33) {
+        log('POP. A single bean achieves freedom.');
+      } else if (r < 0.66) {
+        log('The plate wobbles like it remembers something embarrassing.');
+      } else {
+        const msg = remainingRatio < 0.25
+          ? 'A suspicious smell appears and refuses to elaborate.'
+          : "there's a fork in there";
+        log(msg);
+      }
+    }
+
+    function finish(){
+      running = false;
+      paused = false;
+      setState('DONE');
+      pauseBtn.disabled = true;
+      stopBtn.disabled = true;
+      startBtn.disabled = false;
+      lcd.textContent = '00:00';
+      renderArt();
+
+      // Beep-beep-beep.
+      beep(3);
+      log('BEEP BEEP BEEP. Cooking complete.');
+
+      // Final verdict based on power + duration.
+      const power = clamp(parseInt(powerInput.value||'7',10), 1, 10);
+      const cookedSeconds = clamp(parseInt(secondsInput.value||'30',10), 1, 600);
+      const score = power * cookedSeconds;
+
+      let verdict = 'Result: still cold in the middle. (classic)';
+      if (score < 120) verdict = 'Result: lukewarm. The food is thinking about warmth.';
+      else if (score < 250) verdict = 'Result: hot edges, cold core. A timeless paradox.';
+      else if (score < 450) verdict = 'Result: mostly hot. One bite will still be a trap.';
+      else verdict = 'Result: surface lava. Handle with oven mitts and regret.';
+
+      log(verdict);
+      refreshLabels();
+
+      // Auto-reset remaining time to input for convenience.
+      remainingMs = cookedSeconds * 1000;
+      lcd.textContent = fmt(remainingMs);
+      setState('IDLE');
+    }
+
+    function startOrResume(){
+      if (doorOpen) {
+        beep(1);
+        log('Refused to start: door is open. (the microwave has standards)');
+        return;
+      }
+
+      const seconds = clamp(parseInt(secondsInput.value||'30',10), 1, 600);
+      const power = clamp(parseInt(powerInput.value||'7',10), 1, 10);
+      secondsInput.value = String(seconds);
+      powerInput.value = String(power);
+
+      if (!running) {
+        remainingMs = seconds * 1000;
+        lcd.textContent = fmt(remainingMs);
+        log(`Start: ${seconds}s at power ${power}/10. Food: ${foodSelect.options[foodSelect.selectedIndex].text}.`);
+      } else if (paused) {
+        log('Resumed.');
+      }
+
+      running = true;
+      paused = false;
+      setState('RUNNING');
+      startBtn.disabled = true;
+      pauseBtn.disabled = false;
+      stopBtn.disabled = false;
+
+      if (tick) clearInterval(tick);
+      const startRemaining = remainingMs;
+
+      tick = setInterval(() => {
+        if (!running || paused) return;
+        remainingMs -= 250;
+        if (remainingMs < 0) remainingMs = 0;
+
+        // spin the food occasionally
+        if (Math.random() < 0.35) spinPhase = (spinPhase + 1) % 4;
+        renderArt();
+
+        const ratio = startRemaining ? (remainingMs / startRemaining) : 0;
+        maybeEvent(ratio);
+
+        lcd.textContent = fmt(remainingMs);
+
+        if (remainingMs <= 0) {
+          clearInterval(tick);
+          tick = null;
+          finish();
+        }
+      }, 250);
+
+      refreshLabels();
+    }
+
+    function pause(){
+      if (!running) return;
+      paused = !paused;
+      if (paused) {
+        setState('PAUSED');
+        startBtn.disabled = false;
+        pauseBtn.textContent = 'Resume';
+        log('Paused. The food rests.');
+      } else {
+        pauseBtn.textContent = 'Pause';
+        startOrResume();
+        return; // startOrResume logs resume
+      }
+      refreshLabels();
+      renderArt();
+    }
+
+    function stop(){
+      if (!running) return;
+      beep(1);
+      stopAll('Stopped. The microwave sighs.');
+      pauseBtn.textContent = 'Pause';
+    }
+
+    function toggleDoor(){
+      doorOpen = !doorOpen;
+      doorBtn.textContent = doorOpen ? 'Close door' : 'Open door';
+      beep(1);
+      log(doorOpen ? 'Door opened. Heat escapes into the void.' : 'Door closed. Containment restored.');
+
+      if (doorOpen && running && !paused) {
+        // auto-pause when door opens
+        paused = true;
+        setState('PAUSED');
+        startBtn.disabled = false;
+        pauseBtn.disabled = false;
+        pauseBtn.textContent = 'Resume';
+        log('Auto-paused: door open.');
+      }
+
+      refreshLabels();
+    }
+
+    function syncTimeFromInput(){
+      const seconds = clamp(parseInt(secondsInput.value||'30',10), 1, 600);
+      secondsInput.value = String(seconds);
+      if (!running) {
+        remainingMs = seconds * 1000;
+        lcd.textContent = fmt(remainingMs);
+      }
+    }
+
+    startBtn.addEventListener('click', startOrResume);
+    pauseBtn.addEventListener('click', pause);
+    stopBtn.addEventListener('click', stop);
+    doorBtn.addEventListener('click', toggleDoor);
+
+    secondsInput.addEventListener('input', () => { syncTimeFromInput(); refreshLabels(); });
+    powerInput.addEventListener('input', () => { refreshLabels(); });
+    foodSelect.addEventListener('change', () => { spinPhase = 0; refreshLabels(); log(`Food set to: ${foodSelect.options[foodSelect.selectedIndex].text}.`); });
+
+    clearBtn.addEventListener('click', () => {
+      logEl.innerHTML = '';
+      log('Log cleared. Fresh mistakes await.');
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === ' ') {
+        e.preventDefault();
+        if (!running || paused) startOrResume();
+        else pause();
+      }
+      if (e.key === 'Escape') stop();
+      if (e.key.toLowerCase() === 'd') toggleDoor();
+    });
+
+    // initial render
+    syncTimeFromInput();
+    refreshLabels();
+    log('Ready. Insert the "food".');
+  </script>
+</body>
+</html>
