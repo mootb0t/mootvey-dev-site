@@ -24,9 +24,9 @@ button:disabled{opacity:0.5;cursor:not-allowed}
 .err{color:var(--danger);font-size:13px;margin-top:10px;min-height:18px}
 
 .tableTop{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.tableVisual{position:relative;margin-top:14px;border:1px solid var(--border);border-radius:18px;background:var(--card);overflow:visible}
-.felt{position:relative;min-height:420px;padding:24px;background:var(--card);}
-.felt:before{content:"";position:absolute;inset:18px;border-radius:999px;border:1px solid rgba(255,255,255,0.08);background:transparent;}
+.tableVisual{position:relative;margin-top:14px;border:1px solid var(--border);border-radius:18px;background:rgba(0,0,0,0.15);overflow:visible}
+.felt{position:relative;min-height:420px;padding:24px;background:radial-gradient(800px 500px at 50% 30%, rgba(46,160,120,0.35), rgba(10,20,24,0.0));}
+.felt:before{content:"";position:absolute;inset:18px;border-radius:999px;border:1px solid rgba(255,255,255,0.08);background:radial-gradient(900px 600px at 50% 40%, rgba(25,140,100,0.25), rgba(0,0,0,0.0));}
 
 .board{position:relative;z-index:2;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:64px}
 .cardFace{border:1px solid var(--border);border-radius:10px;padding:10px 10px;min-width:44px;text-align:center;background:var(--card);font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
