@@ -32,12 +32,13 @@ button:disabled{opacity:0.5;cursor:not-allowed}
 .pot{position:relative;z-index:2;margin-top:10px;color:var(--chip);font-weight:700;text-align:center}
 
 .ring{position:absolute;inset:0;z-index:3;}
-.seatBubble{position:absolute;transform:translate(-50%,-50%);width:190px;max-width:40vw;border:1px solid var(--border);border-radius:14px;padding:10px;background:#0c131c;}
+.seatBubble{position:absolute;transform:translate(-50%,-50%);width:220px;max-width:42vw;border:1px solid var(--border);border-radius:14px;padding:10px;background:#0c131c;}
 .seatBubble.you{border-color:#2f9bb3}
 .seatName{display:flex;justify-content:space-between;gap:8px;align-items:center}
 .badge{font-size:12px;color:#001018;background:var(--accent);padding:2px 8px;border-radius:999px;font-weight:700}
 .chips{color:var(--chip);font-weight:700}
 .small{font-size:12px;color:var(--muted);margin-top:6px;white-space:pre-line}
+.cards{font-size:16px;color:var(--text);font-weight:700;letter-spacing:0.5px}
 
 .actions{margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 
@@ -48,4 +49,8 @@ button:disabled{opacity:0.5;cursor:not-allowed}
   .top,.grid,#tableCard,#loginCard,#lobbyCard{display:none !important}
   #settleModal{display:block !important;border:0}
   #settleModal .row{display:none !important}
+  #settleModal h2{margin-top:0}
+  #settleBody{font-size:16px;line-height:1.35}
+  #settleBody code{font-size:14px}
+  #settleBody .chips{color:#000}
 }

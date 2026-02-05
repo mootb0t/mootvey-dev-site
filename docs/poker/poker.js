@@ -51,6 +51,9 @@ function connectWs() {
     } else if (msg.type === 'settlement') {
       settlement = msg.payload;
       openSettlement();
+    } else if (msg.type === 'settlement_update') {
+      settlement = msg.payload;
+      if (!$('settleModal').hidden) openSettlement();
     } else if (msg.type === 'error') {
       showError($('tableErr'), msg.payload?.error || 'error');
     }
@@ -98,16 +101,45 @@ function openSettlement() {
     ? `<ol>${transfers.map(t => `<li><strong>${t.from}</strong> owes <strong>${t.to}</strong> <span class="chips">${t.amount}</span></li>`).join('')}</ol>`
     : `<div class="muted">No one owes anyone anything.</div>`;
 
+  const entries = settlement.entries || [];
+  const rows = entries.length
+    ? `<table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr>
+            <th style="text-align:left;border-bottom:1px solid var(--border);padding:6px 0">player</th>
+            <th style="text-align:right;border-bottom:1px solid var(--border);padding:6px 0">start</th>
+            <th style="text-align:right;border-bottom:1px solid var(--border);padding:6px 0">end</th>
+            <th style="text-align:right;border-bottom:1px solid var(--border);padding:6px 0">net</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${entries.map(e => {
+            const net = e.net || 0;
+            const netStr = net > 0 ? `+${net}` : `${net}`;
+            return `<tr>
+              <td style="padding:6px 0"><strong>${e.username}</strong></td>
+              <td style="padding:6px 0;text-align:right">${e.start}</td>
+              <td style="padding:6px 0;text-align:right">${e.end}</td>
+              <td style="padding:6px 0;text-align:right"><span class="chips">${netStr}</span></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>`
+    : '';
+
   const started = settlement.startedAt ? new Date(settlement.startedAt).toLocaleString() : '—';
   const ended = settlement.endedAt ? new Date(settlement.endedAt).toLocaleString() : '—';
 
   $('settleBody').innerHTML = `
     <div class="muted">room: <code>${settlement.roomId}</code></div>
     <div class="muted">started: ${started}</div>
-    <div class="muted">ended: ${ended}</div>
+    <div class="muted">as of: ${ended}</div>
     <hr style="border:0;border-top:1px solid var(--border);margin:14px 0" />
     <h3 style="margin:0 0 8px 0">who owes who</h3>
     ${lines}
+    <hr style="border:0;border-top:1px solid var(--border);margin:14px 0" />
+    <h3 style="margin:0 0 8px 0">ledger</h3>
+    ${rows}
   `;
 
   $('settleModal').hidden = false;
@@ -162,7 +194,7 @@ function render() {
       : `<button data-sit="${seat}">sit</button>`;
 
     const body = u
-      ? `<div class="small">stack: <span class=chips>${p?.stack ?? '—'}</span>\nbet: ${p?.bet ?? 0}\ncards: ${hole}\n${flags.length ? flags.join(' • ') : ''}</div>`
+      ? `<div class="small">stack: <span class=chips>${p?.stack ?? '—'}</span>\nbet: ${p?.bet ?? 0}\n</div><div class="cards">${hole}</div><div class="small">${flags.length ? flags.join(' • ') : ''}</div>`
       : `<div class="small muted">empty seat</div>`;
 
     return `
