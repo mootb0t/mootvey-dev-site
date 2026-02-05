@@ -1,11 +1,11 @@
 :root{
-  --bg:#0b0f14;--card:#121a23;--text:#e7eef7;--muted:#97a7bb;--border:#203040;
-  --accent:#6ee7ff;--danger:#ff6e6e;--good:#6effa8;
-  --chip:#f8d56b;
+  --bg:#000;--card:#000;--text:#e7eef7;--muted:#97a7bb;--border:#222;
+  --accent:#e7eef7;--danger:#ff6e6e;--good:#6effa8;
+  --chip:#e7eef7;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
 }
 *{box-sizing:border-box}
-body{margin:0;background:radial-gradient(1200px 600px at 30% 10%, #102033, var(--bg));color:var(--text)}
+body{margin:0;background:var(--bg);color:var(--text)}
 a{color:var(--accent)}
 .wrap{max-width:980px;margin:0 auto;padding:24px}
 .top{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:16px;gap:12px}
@@ -13,26 +13,26 @@ a{color:var(--accent)}
 .sub{color:var(--muted);font-size:13px;margin-top:2px}
 .me{color:var(--muted);font-size:13px;text-align:right;white-space:pre}
 .grid{display:grid;grid-template-columns:1fr;gap:16px}
-.card{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.00));border:1px solid var(--border);border-radius:14px;padding:16px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px}
 .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-input{background:#0c131c;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px;outline:none;min-width:220px}
-button{background:#0c131c;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer}
+input{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px;outline:none;min-width:220px}
+button{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer}
 button:hover{border-color:#33526c}
 button:disabled{opacity:0.5;cursor:not-allowed}
 .muted{color:var(--muted);font-size:13px}
 .err{color:var(--danger);font-size:13px;margin-top:10px;min-height:18px}
 
 .tableTop{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.tableVisual{position:relative;margin-top:14px;border:1px solid var(--border);border-radius:18px;background:rgba(0,0,0,0.15);overflow:hidden}
-.felt{position:relative;min-height:360px;padding:16px;background:radial-gradient(800px 500px at 50% 30%, rgba(46,160,120,0.35), rgba(10,20,24,0.0));}
-.felt:before{content:"";position:absolute;inset:18px;border-radius:999px;border:1px solid rgba(255,255,255,0.08);background:radial-gradient(900px 600px at 50% 40%, rgba(25,140,100,0.25), rgba(0,0,0,0.0));}
+.tableVisual{position:relative;margin-top:14px;border:1px solid var(--border);border-radius:18px;background:var(--card);overflow:hidden}
+.felt{position:relative;min-height:360px;padding:16px;background:var(--card);}
+.felt:before{content:"";position:absolute;inset:18px;border-radius:999px;border:1px solid rgba(255,255,255,0.08);background:transparent;}
 
 .board{position:relative;z-index:2;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:64px}
-.cardFace{border:1px solid var(--border);border-radius:10px;padding:10px 10px;min-width:44px;text-align:center;background:#0c131c;font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+.cardFace{border:1px solid var(--border);border-radius:10px;padding:10px 10px;min-width:44px;text-align:center;background:var(--card);font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
 .pot{position:relative;z-index:2;margin-top:10px;color:var(--chip);font-weight:700;text-align:center}
 
 .ring{position:absolute;inset:0;z-index:3;}
-.seatBubble{position:absolute;transform:translate(-50%,-50%);width:220px;max-width:42vw;border:1px solid var(--border);border-radius:14px;padding:10px;background:#0c131c;}
+.seatBubble{position:absolute;transform:translate(-50%,-50%);width:220px;max-width:42vw;border:1px solid var(--border);border-radius:14px;padding:10px;background:var(--card);}
 .seatBubble.you{border-color:#2f9bb3}
 .seatName{display:flex;justify-content:space-between;gap:8px;align-items:center}
 .badge{font-size:12px;color:#001018;background:var(--accent);padding:2px 8px;border-radius:999px;font-weight:700}
