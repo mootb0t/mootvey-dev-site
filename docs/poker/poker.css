@@ -46,7 +46,7 @@ button:disabled{opacity:0.5;cursor:not-allowed}
 @media print{
   body{background:white;color:black}
   .wrap{max-width:none}
-  .top,.grid,#tableCard,#loginCard,#lobbyCard{display:none !important}
+  .top,#tableCard,#loginCard,#lobbyCard{display:none !important}
   #settleModal{display:block !important;border:0}
   #settleModal .row{display:none !important}
   #settleModal h2{margin-top:0}
