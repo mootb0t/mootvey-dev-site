@@ -5,6 +5,7 @@
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
 }
 *{box-sizing:border-box}
+html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--text)}
 a{color:var(--accent)}
 .wrap{max-width:980px;margin:0 auto;padding:24px}
@@ -23,8 +24,8 @@ button:disabled{opacity:0.5;cursor:not-allowed}
 .err{color:var(--danger);font-size:13px;margin-top:10px;min-height:18px}
 
 .tableTop{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.tableVisual{position:relative;margin-top:14px;border:1px solid var(--border);border-radius:18px;background:var(--card);overflow:hidden}
-.felt{position:relative;min-height:360px;padding:16px;background:var(--card);}
+.tableVisual{position:relative;margin-top:14px;border:1px solid var(--border);border-radius:18px;background:var(--card);overflow:visible}
+.felt{position:relative;min-height:420px;padding:24px;background:var(--card);}
 .felt:before{content:"";position:absolute;inset:18px;border-radius:999px;border:1px solid rgba(255,255,255,0.08);background:transparent;}
 
 .board{position:relative;z-index:2;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:64px}
