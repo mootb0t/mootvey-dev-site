@@ -513,9 +513,9 @@
 
       const r = Math.random();
       if (r < 0.33) {
-        log('POP. A single bean achieves freedom.');
+        log('POP.');
       } else if (r < 0.66) {
-        log('The plate wobbles like it remembers something embarrassing.');
+        log('Plate shifted.');
       } else {
         const msg = remainingRatio < 0.25
           ? 'Reminder: stir or rotate for more even heating.'
@@ -619,7 +619,7 @@
         setState('PAUSED');
         startBtn.disabled = false;
         pauseBtn.textContent = 'Resume';
-        log('Paused. The food rests.');
+        log('Paused.');
       } else {
         pauseBtn.textContent = 'Pause';
         startOrResume();
@@ -632,7 +632,7 @@
     function stop(){
       if (!running) return;
       beep(1);
-      stopAll('Stopped. The microwave sighs.');
+      stopAll('Stopped.');
       pauseBtn.textContent = 'Pause';
     }
 
@@ -640,7 +640,7 @@
       doorOpen = !doorOpen;
       doorBtn.textContent = doorOpen ? 'Close door' : 'Open door';
       beep(1);
-      log(doorOpen ? 'Door opened. Heat escapes into the void.' : 'Door closed. Containment restored.');
+      log(doorOpen ? 'Door opened. Heat escaping.' : 'Door closed.');
 
       if (doorOpen && running && !paused) {
         // auto-pause when door opens
@@ -675,7 +675,7 @@
 
     clearBtn.addEventListener('click', () => {
       logEl.innerHTML = '';
-      log('Log cleared. Fresh mistakes await.');
+      log('Log cleared.');
     });
 
     document.addEventListener('keydown', (e) => {
@@ -691,7 +691,7 @@
     // initial render
     syncTimeFromInput();
     refreshLabels();
-    log('Ready. Insert the "food".');
+    log('Ready. Put food in.');
   </script>
 </body>
 </html>

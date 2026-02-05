@@ -141,12 +141,12 @@
           <div class="hint">We take cancellations seriously. Mostly we take them personally.</div>
           <div class="row" style="margin-top:12px">
             <button class="btn" id="no1">No</button>
-            <button class="btn" id="no2">No (with regret)</button>
+            <button class="btn" id="no2">No</button>
             <span class="tiny-link" id="yes">Yes, cancel</span>
           </div>
         `;
         document.getElementById('no1').onclick = () => alert('Great choice.');
-        document.getElementById('no2').onclick = () => alert('We accept your regret.');
+        document.getElementById('no2').onclick = () => alert('ok');
         document.getElementById('yes').onclick = () => next();
         return;
       }
