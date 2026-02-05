@@ -143,10 +143,9 @@
     </header>
 
     <section>
-      <h2>Chef’s special: disappointment</h2>
+      <h2>awesome microwave simulator</h2>
       <p class="hint" style="margin-top:8px">
-        Set a time, choose a power level, and experience the timeless arc:
-        <span class="mono">BEEP</span> → <span class="mono">WHIRR</span> → <span class="mono">still cold in the middle</span>.
+        Set a time, choose a power level, press Start, and enjoy the beeps.
       </p>
 
       <div class="panel microwrap" aria-label="Microwave simulator">
@@ -184,12 +183,12 @@
             <div class="field">
               <div class="label">Time (seconds)</div>
               <input id="seconds" type="number" min="1" max="600" value="30" />
-              <div class="hint small">1–600. You’re not defrosting a turkey here.</div>
+              <div class="hint small">1–600.</div>
             </div>
             <div class="field">
               <div class="label">Power</div>
               <input id="power" type="number" min="1" max="10" value="7" />
-              <div class="hint small">if too high will <span class="mono">rm -rf /</span></div>
+              <div class="hint small">Higher power cooks faster.</div>
             </div>
           </div>
 
@@ -203,7 +202,7 @@
                 <option value="coffee">coffee (day 2)</option>
                 <option value="mystery">mystery tupperware</option>
               </select>
-              <div class="hint small">All foods become lava at the edges.</div>
+              <div class="hint small">Tip: try a medium power for fewer hot spots.</div>
             </div>
           </div>
 
@@ -211,7 +210,7 @@
             <div class="row" style="justify-content:space-between; align-items:flex-end">
               <div>
                 <div style="font-weight:700">Event log</div>
-                <div class="hint small">A record of your culinary choices.</div>
+                <div class="hint small">Status messages while it runs.</div>
               </div>
               <button class="btn" id="clear" type="button">Clear</button>
             </div>
@@ -221,7 +220,7 @@
           <div class="panel" style="margin-top:12px">
             <div style="font-weight:700">Safety label</div>
             <p class="hint" style="margin:8px 0 0">
-              Warning: this experience is too authentic so you'll think it's a real microwave, screen will be super hot too
+              Warning: this is a simulator. Your screen should stay normal-temperature.
             </p>
           </div>
         </div>
@@ -519,8 +518,8 @@
         log('The plate wobbles like it remembers something embarrassing.');
       } else {
         const msg = remainingRatio < 0.25
-          ? 'A suspicious smell appears and refuses to elaborate.'
-          : "there's a fork in there";
+          ? 'Reminder: stir or rotate for more even heating.'
+          : 'Reminder: check for metal before starting.';
         log(msg);
       }
     }
@@ -544,11 +543,11 @@
       const cookedSeconds = clamp(parseInt(secondsInput.value||'30',10), 1, 600);
       const score = power * cookedSeconds;
 
-      let verdict = 'Result: still cold in the middle. (classic)';
-      if (score < 120) verdict = 'Result: lukewarm. The food is thinking about warmth.';
-      else if (score < 250) verdict = 'Result: hot edges, cold core. A timeless paradox.';
-      else if (score < 450) verdict = 'Result: mostly hot. One bite will still be a trap.';
-      else verdict = 'Result: surface lava. Handle with oven mitts and regret.';
+      let verdict = 'Result: slightly warm.';
+      if (score < 120) verdict = 'Result: lukewarm.';
+      else if (score < 250) verdict = 'Result: warm with a few hot spots.';
+      else if (score < 450) verdict = 'Result: hot.';
+      else verdict = 'Result: very hot.';
 
       log(verdict);
       refreshLabels();
@@ -562,7 +561,7 @@
     function startOrResume(){
       if (doorOpen) {
         beep(1);
-        log('Refused to start: door is open. (the microwave has standards)');
+        log('Cannot start: door is open.');
         return;
       }
 
