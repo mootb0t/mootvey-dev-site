@@ -119,6 +119,10 @@ function render() {
   let a = '';
   if (!g) {
     a = '<div class="muted">no hand running.</div>';
+  } else if (g.phase === 'showdown') {
+    const note = g.lastResult?.note ? `<div class="muted">${g.lastResult.note}</div>` : '';
+    const winners = g.lastResult?.winners?.length ? `<div class="muted">winners: ${g.lastResult.winners.join(', ')}</div>` : '';
+    a = `${note}${winners}<div class="muted">host can start the next hand.</div>`;
   } else if (!isYourTurn) {
     a = '<div class="muted">waiting…</div>';
   } else if (you?.folded) {
