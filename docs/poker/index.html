@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>poker</title>
+  <link rel="stylesheet" href="./poker.css" />
+</head>
+<body>
+  <main class="wrap">
+    <header class="top">
+      <div>
+        <div class="title">poker</div>
+        <div class="sub">fake chips • real feelings</div>
+      </div>
+      <div class="me" id="me"></div>
+    </header>
+
+    <section class="card" id="loginCard">
+      <h2>sign in</h2>
+      <p class="muted">username only (a-z, 0-9, underscore). chips persist on the server.</p>
+      <div class="row">
+        <input id="username" placeholder="username" autocomplete="off" />
+        <button id="loginBtn">enter</button>
+      </div>
+      <div class="err" id="loginErr"></div>
+    </section>
+
+    <section class="grid">
+      <section class="card" id="lobbyCard" hidden>
+        <h2>room</h2>
+        <div class="row">
+          <input id="roomId" placeholder="room id (e.g. fridaynight)" autocomplete="off" />
+          <button id="joinRoomBtn">join</button>
+        </div>
+        <div class="muted">share the room id with friends. everyone joins the same room.</div>
+
+        <hr style="border:0;border-top:1px solid var(--border);margin:14px 0" />
+
+        <h2>top up</h2>
+        <p class="muted">honour system: add chips to your account.</p>
+        <div class="row">
+          <input id="topupAmount" placeholder="amount (e.g. 500)" inputmode="numeric" />
+          <button id="topupBtn">add chips</button>
+        </div>
+        <div class="err" id="topupErr"></div>
+
+        <hr style="border:0;border-top:1px solid var(--border);margin:14px 0" />
+
+        <p class="muted">Back to hub: <a href="../">mootvey.dev</a></p>
+      </section>
+
+      <section class="card" id="tableCard" hidden>
+        <div class="tableTop">
+          <h2>table</h2>
+          <div class="row">
+            <button id="startHandBtn">start hand</button>
+            <span class="muted" id="hostNote"></span>
+          </div>
+        </div>
+
+        <div class="board" id="board"></div>
+        <div class="pot" id="pot"></div>
+
+        <div class="seats" id="seats"></div>
+
+        <div class="actions" id="actions"></div>
+        <div class="err" id="tableErr"></div>
+      </section>
+    </section>
+  </main>
+
+  <script type="module" src="./poker.js"></script>
+</body>
+</html>

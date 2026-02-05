@@ -1,0 +1,36 @@
+:root{
+  --bg:#0b0f14;--card:#121a23;--text:#e7eef7;--muted:#97a7bb;--border:#203040;
+  --accent:#6ee7ff;--danger:#ff6e6e;--good:#6effa8;
+  --chip:#f8d56b;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1200px 600px at 30% 10%, #102033, var(--bg));color:var(--text)}
+a{color:var(--accent)}
+.wrap{max-width:980px;margin:0 auto;padding:24px}
+.top{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:16px;gap:12px}
+.title{font-size:20px;font-weight:700}
+.sub{color:var(--muted);font-size:13px;margin-top:2px}
+.me{color:var(--muted);font-size:13px;text-align:right;white-space:pre}
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+.card{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.00));border:1px solid var(--border);border-radius:14px;padding:16px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input{background:#0c131c;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px;outline:none;min-width:220px}
+button{background:#0c131c;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer}
+button:hover{border-color:#33526c}
+button:disabled{opacity:0.5;cursor:not-allowed}
+.muted{color:var(--muted);font-size:13px}
+.err{color:var(--danger);font-size:13px;margin-top:10px;min-height:18px}
+
+.tableTop{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.board{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.cardFace{border:1px solid var(--border);border-radius:10px;padding:10px 10px;min-width:44px;text-align:center;background:#0c131c}
+.pot{margin-top:10px;color:var(--chip);font-weight:700}
+.seats{display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;margin-top:12px}
+.seat{border:1px solid var(--border);border-radius:12px;padding:10px;background:#0c131c}
+.seatTop{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.badge{font-size:12px;color:#001018;background:var(--accent);padding:2px 8px;border-radius:999px;font-weight:700}
+.you{border-color:#2f9bb3}
+.chips{color:var(--chip);font-weight:700}
+.small{font-size:12px;color:var(--muted);margin-top:6px;white-space:pre-line}
+.actions{margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
