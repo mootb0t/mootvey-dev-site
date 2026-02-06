@@ -54,6 +54,11 @@ function connectWs() {
     } else if (msg.type === 'settlement_update') {
       settlement = msg.payload;
       if (!$('settleModal').hidden) openSettlement();
+    } else if (msg.type === 'session_cleared') {
+      settlement = null;
+      closeSettlement();
+      showError($('tableErr'), 'settlement cleared');
+      render();
     } else if (msg.type === 'error') {
       showError($('tableErr'), msg.payload?.error || 'error');
     }
@@ -244,6 +249,8 @@ function render() {
   const isHost = host && host === me;
   $('startSessionBtn').disabled = !isHost;
   $('endSessionBtn').disabled = !isHost;
+  const resetBtn = $('resetSessionBtn');
+  if (resetBtn) resetBtn.disabled = !isHost;
 
   const pos = seatPositions();
   const ring = pos.map(({ seat, x, y }) => {
@@ -380,6 +387,12 @@ $('startSessionBtn').addEventListener('click', () => {
 $('endSessionBtn').addEventListener('click', () => {
   showError($('tableErr'), '');
   send('end_session');
+});
+
+$('resetSessionBtn')?.addEventListener('click', () => {
+  showError($('tableErr'), '');
+  if (!confirm('Reset settlement for this room? This clears the session baseline/ledger.')) return;
+  send('reset_session');
 });
 
 $('closeSettleBtn').addEventListener('click', () => closeSettlement());
