@@ -210,6 +210,15 @@ function closeSettlement() {
 }
 
 function render() {
+  // Preserve the raise input value/focus across re-renders.
+  // The server can send frequent snapshots; rebuilding the actions DOM would otherwise
+  // kick you out of the input while typing.
+  const prevRaise = $('raiseTo');
+  const prevRaiseValue = prevRaise ? prevRaise.value : '';
+  const prevRaiseFocused = prevRaise && document.activeElement === prevRaise;
+  const prevSelStart = prevRaiseFocused ? prevRaise.selectionStart : null;
+  const prevSelEnd = prevRaiseFocused ? prevRaise.selectionEnd : null;
+
   $('loginCard').hidden = !!me;
   $('lobbyCard').hidden = !me;
   $('tableCard').hidden = !(me && roomId);
@@ -309,6 +318,16 @@ function render() {
     const totalTo = Number(($('raiseTo')?.value || '').trim());
     send('action', { action: { type: 'bet_raise', totalTo } });
   };
+
+  // Restore raise input value + cursor if we had it focused.
+  const newRaise = $('raiseTo');
+  if (newRaise && prevRaiseValue && !newRaise.value) newRaise.value = prevRaiseValue;
+  if (newRaise && prevRaiseFocused) {
+    newRaise.focus();
+    if (typeof prevSelStart === 'number' && typeof prevSelEnd === 'number') {
+      try { newRaise.setSelectionRange(prevSelStart, prevSelEnd); } catch {}
+    }
+  }
 }
 
 $('loginBtn').addEventListener('click', async () => {
