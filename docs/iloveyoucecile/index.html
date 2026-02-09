@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Will you be my Valentine?</title>
+  <style>
+    :root{
+      --card:#ffffffcc;
+      --text:#1f1f1f;
+      --muted:#444;
+      --yes:#ff4d6d;
+      --yes2:#ff758f;
+      --shadow: 0 20px 50px rgba(0,0,0,.18);
+      --radius: 24px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      min-height:100svh;
+      display:grid;
+      place-items:center;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color:var(--text);
+      /* Solid pink background */
+      background: #ff9bb3;
+      overflow:hidden;
+    }
+
+    .wrap{
+      width:min(920px, 92vw);
+      padding:20px;
+    }
+
+    .card{
+      position:relative;
+      background:var(--card);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,.6);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: clamp(18px, 3.5vw, 34px);
+      overflow:hidden;
+    }
+
+    .hearts{
+      position:absolute;
+      inset:-40px;
+      pointer-events:none;
+      opacity:.25;
+      background:
+        radial-gradient(circle at 20% 30%, #ff4d6d 0 6px, transparent 7px),
+        radial-gradient(circle at 45% 65%, #ff4d6d 0 5px, transparent 6px),
+        radial-gradient(circle at 75% 40%, #ff4d6d 0 7px, transparent 8px),
+        radial-gradient(circle at 85% 75%, #ff4d6d 0 4px, transparent 5px);
+      filter: blur(.2px);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: clamp(16px, 3vw, 28px);
+      align-items:center;
+    }
+
+    @media (max-width: 760px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    h1{
+      margin:0 0 10px 0;
+      font-size: clamp(26px, 4vw, 44px);
+      line-height:1.05;
+      letter-spacing:-.02em;
+    }
+
+    .sub{
+      margin:0 0 18px 0;
+      color:var(--muted);
+      font-size: clamp(14px, 1.8vw, 18px);
+      line-height:1.35;
+    }
+
+    .pill{
+      display:inline-block;
+      padding: 6px 10px;
+      border-radius:999px;
+      background: rgba(255,255,255,.7);
+      border:1px solid rgba(0,0,0,.06);
+      font-size: 12px;
+      color:#333;
+      margin-bottom:10px;
+    }
+
+    .photo{
+      width:100%;
+      aspect-ratio: 4/5;
+      border-radius: 18px;
+      background: rgba(255,255,255,.65);
+      border:1px dashed rgba(0,0,0,.18);
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      box-shadow: 0 14px 30px rgba(0,0,0,.12);
+    }
+
+    .photo img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .photo .placeholder{
+      padding:16px;
+      text-align:center;
+      color:#333;
+      font-size:14px;
+    }
+    .photo .placeholder code{
+      display:block;
+      margin-top:8px;
+      font-size:12px;
+      opacity:.8;
+    }
+
+    .actions{
+      position:relative;
+      margin-top: 10px;
+      padding-top: 10px;
+      height: 86px; /* space for the escaping No button */
+    }
+
+    .btn{
+      appearance:none;
+      border:0;
+      border-radius: 999px;
+      padding: 14px 18px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor:pointer;
+      user-select:none;
+      box-shadow: 0 10px 22px rgba(0,0,0,.14);
+      transform: translateY(0);
+      transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+      touch-action: manipulation;
+    }
+    .btn:active{
+      transform: translateY(1px);
+      box-shadow: 0 6px 16px rgba(0,0,0,.16);
+    }
+
+    .btn-yes{
+      background: linear-gradient(135deg, var(--yes), var(--yes2));
+      color:white;
+      margin-right:10px;
+    }
+
+    .btn-no{
+      background: rgba(107,114,128,.14);
+      color:#111;
+      position:absolute;
+      left: 170px;
+      top: 10px;
+      border: 1px solid rgba(0,0,0,.08);
+      box-shadow:none;
+      font-weight:700;
+    }
+
+    .fineprint{
+      margin-top: 10px;
+      font-size: 12px;
+      color: rgba(0,0,0,.55);
+    }
+
+    /* Modal-ish "YES" screen */
+    .overlay{
+      position:fixed;
+      inset:0;
+      display:none;
+      place-items:center;
+      padding: 20px;
+      background: rgba(0,0,0,.35);
+      backdrop-filter: blur(6px);
+      z-index:50;
+    }
+    .overlay.show{ display:grid; }
+
+    .yay{
+      width:min(760px, 94vw);
+      background: rgba(255,255,255,.92);
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.7);
+      box-shadow: var(--shadow);
+      padding: clamp(18px, 3vw, 30px);
+      position:relative;
+      overflow:hidden;
+    }
+    .yay h2{
+      margin:0 0 8px 0;
+      font-size: clamp(24px, 3.4vw, 36px);
+      letter-spacing:-.02em;
+    }
+    .yay p{
+      margin:0 0 14px 0;
+      color:#333;
+      font-size: clamp(14px, 1.9vw, 18px);
+      line-height:1.4;
+    }
+    .close{
+      position:absolute;
+      top: 14px;
+      right: 14px;
+      border:0;
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      cursor:pointer;
+      background: rgba(0,0,0,.06);
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    /* Confetti */
+    .confetti{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+    }
+    .confetti i{
+      position:absolute;
+      width:10px;
+      height:16px;
+      background: #ff4d6d;
+      opacity:.9;
+      border-radius: 3px;
+      transform: translateY(-110vh) rotate(0deg);
+      animation: fall linear forwards;
+    }
+    @keyframes fall {
+      to { transform: translateY(110vh) rotate(720deg); }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- =========================
+       EDIT THESE PLACEHOLDERS
+       ========================= -->
+  <script>
+    const CONFIG = {
+      // The name shown in the headline:
+      valentineName: "Cececilee",
+
+      // The small note under the headline:
+      noteText: "I made you a tiny website because you’re my favorite person. ❤️",
+
+      // Optional photo:
+      // 1) Put an image in the same folder as this file, e.g. "us.jpg"
+      // 2) Set photoSrc to "us.jpg"
+      // Leave empty ("") to show the placeholder box instead.
+      photoSrc: "us.jpg", // put your photo file next to this index.html
+
+      // YES screen text:
+      yesTitle: "Yes!! It’s a date ❤️",
+      yesMessage: "Happy Valentine’s Day. I’m so lucky it’s you.",
+
+      // No-button behavior:
+      // - after this many dodges, it turns into a YES button.
+      dodgesBeforeFlip: 7,
+
+      // Text that the No button cycles through as it dodges:
+      noTexts: ["No", "Wait", "You sure?", "Come on", "Be nice", "Please", "Ok fine"]
+    };
+  </script>
+
+  <div class="wrap">
+    <div class="card" id="card">
+      <div class="hearts"></div>
+
+      <div class="grid">
+        <div>
+          <div class="pill">for: <strong id="namePill">YOUR_GIRLFRIEND_NAME</strong></div>
+          <h1 id="headline">Will you be my Valentine, YOUR_GIRLFRIEND_NAME?</h1>
+          <p class="sub" id="note">I made you this website because you’re my favorite person. ❤️</p>
+
+          <div class="actions" id="actionsArea">
+            <button class="btn btn-yes" id="yesBtn">Yes ❤️</button>
+            <button class="btn btn-no" id="noBtn" aria-label="No button">No</button>
+          </div>
+
+          <div class="fineprint">Don't even try the "No" button haha</div>
+        </div>
+
+        <div class="photo" id="photoBox">
+          <div class="placeholder" id="photoPlaceholder">
+            <strong>Photo placeholder</strong>
+            <div style="margin-top:6px; opacity:.9;">
+              Drop a pic of you two here by setting <code>CONFIG.photoSrc</code>
+            </div>
+            <code>Example: photoSrc: "us.jpg"</code>
+          </div>
+          <img id="photoImg" alt="Photo of us" style="display:none;" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true">
+    <div class="yay">
+      <button class="close" id="closeOverlay" aria-label="Close">×</button>
+      <div class="confetti" id="confetti"></div>
+      <h2 id="yesTitle">YAY!! It’s a date ❤️</h2>
+      <p id="yesMessage">Happy Valentine’s Day. I’m so lucky it’s you.</p>
+      <button class="btn btn-yes" id="okBtn">Ok 😌</button>
+    </div>
+  </div>
+
+  <script>
+    // Apply config text
+    const name = CONFIG.valentineName || "my love";
+    document.getElementById("namePill").textContent = name;
+    document.getElementById("headline").textContent = `Will you be my Valentine, ${name}?`;
+    document.getElementById("note").textContent = CONFIG.noteText || "";
+
+    // Photo config
+    const photoSrc = (CONFIG.photoSrc || "").trim();
+    const img = document.getElementById("photoImg");
+    const ph = document.getElementById("photoPlaceholder");
+    if (photoSrc) {
+      img.src = photoSrc;
+      img.style.display = "block";
+      ph.style.display = "none";
+    }
+
+    // Overlay text
+    document.getElementById("yesTitle").textContent = CONFIG.yesTitle || "YAY!! 💘";
+    document.getElementById("yesMessage").textContent = CONFIG.yesMessage || "";
+
+    // Overlay controls
+    const overlay = document.getElementById("overlay");
+    const openYes = () => {
+      overlay.classList.add("show");
+      burstConfetti();
+    };
+    const closeYes = () => overlay.classList.remove("show");
+
+    document.getElementById("yesBtn").addEventListener("click", openYes);
+    document.getElementById("okBtn").addEventListener("click", closeYes);
+    document.getElementById("closeOverlay").addEventListener("click", closeYes);
+    overlay.addEventListener("click", (e) => { if (e.target === overlay) closeYes(); });
+
+    // No button dodge logic
+    const noBtn = document.getElementById("noBtn");
+    const actionsArea = document.getElementById("actionsArea");
+    let dodges = 0;
+
+    const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+
+    function moveNoButton() {
+      const area = actionsArea.getBoundingClientRect();
+      const btn = noBtn.getBoundingClientRect();
+
+      const maxX = area.width - btn.width;
+      const maxY = area.height - btn.height;
+
+      const pad = 6;
+      const x = clamp(Math.random() * maxX, pad, maxX - pad);
+      const y = clamp(Math.random() * maxY, pad, maxY - pad);
+
+      noBtn.style.left = `${x}px`;
+      noBtn.style.top = `${y}px`;
+    }
+
+    function updateNoText() {
+      const texts = Array.isArray(CONFIG.noTexts) ? CONFIG.noTexts : ["No"];
+      const t = texts[Math.min(dodges, texts.length - 1)];
+      noBtn.textContent = t;
+    }
+
+    function flipToYes() {
+      noBtn.textContent = "Yes 😳";
+      noBtn.style.background = "linear-gradient(135deg, var(--yes), var(--yes2))";
+      noBtn.style.color = "white";
+      noBtn.style.border = "0";
+      noBtn.style.boxShadow = "0 10px 22px rgba(0,0,0,.14)";
+      noBtn.onclick = openYes;
+      noBtn.onmouseenter = null;
+      noBtn.ontouchstart = null;
+    }
+
+    function dodge() {
+      dodges++;
+      updateNoText();
+      moveNoButton();
+
+      if (dodges >= (CONFIG.dodgesBeforeFlip ?? 7)) {
+        flipToYes();
+      }
+    }
+
+    noBtn.addEventListener("mouseenter", dodge);
+
+    noBtn.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      dodge();
+    }, { passive: false });
+
+    function burstConfetti() {
+      const holder = document.getElementById("confetti");
+      holder.innerHTML = "";
+
+      const colors = ["#ff4d6d", "#ffd166", "#06d6a0", "#118ab2", "#8338ec"];
+      const pieces = 90;
+
+      for (let i = 0; i < pieces; i++) {
+        const p = document.createElement("i");
+        const left = Math.random() * 100;
+        const delay = Math.random() * 0.35;
+        const dur = 1.2 + Math.random() * 1.4;
+        const w = 6 + Math.random() * 8;
+        const h = 10 + Math.random() * 14;
+
+        p.style.left = left + "vw";
+        p.style.animationDelay = delay + "s";
+        p.style.animationDuration = dur + "s";
+        p.style.width = w + "px";
+        p.style.height = h + "px";
+        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+        p.style.opacity = (0.65 + Math.random() * 0.35).toFixed(2);
+
+        holder.appendChild(p);
+      }
+    }
+
+    updateNoText();
+    moveNoButton();
+  </script>
+</body>
+</html>
